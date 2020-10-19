@@ -1,0 +1,80 @@
+version: "3.8"
+services:
+  traefik:
+    restart: unless-stopped
+    image: traefik:v2.0.2
+    ports:
+      - "80:80"
+      - "443:443"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy_public"
+      - "traefik.http.routers.https-redirect.entrypoints=http"
+      - "traefik.http.routers.https-redirect.rule=HostRegexp(`{any:.*}`)"
+      - "traefik.http.routers.https-redirect.middlewares=https-redirect"
+      - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
+    networks:
+      - lab
+
+    volumes:
+      - ./config/traefik.yml:/etc/traefik/traefik.yml
+      - ./config/tls.yml:/etc/traefik/tls.yml
+      - /var/run/docker.sock:/var/run/docker.sock
+      - certs:/etc/ssl/traefik
+
+  sonar:
+    image: ${SONAR_IMAGE}
+    depends_on:
+      - db
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.sonar.entrypoints=https"
+      - "traefik.http.routers.sonar.rule=Host(`sonar.traefik.me`)"
+      - "traefik.http.routers.sonar-tls.tls.domains[0].main=sonar.traefik.me"
+      - "traefik.http.routers.sonar-tls.tls.domains[0].sans=sonar-*.traefik.me"
+    ports:
+      - "9000:9000"
+    networks:
+      - lab
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://db:5432/sonar
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: sonar
+      SONAR_FORCEAUTHENTICATION: "true"
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+      - sonarqube_temp:/opt/sonarqube/temp
+
+  db:
+    image: postgres
+    networks:
+      - lab
+    environment:
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: sonar
+    volumes:
+      - postgresql:/var/lib/postgresql
+      - postgresql_data:/var/lib/postgresql/data
+
+  reverse-proxy-https-helper:
+    image: alpine
+    command: sh -c "cd /etc/ssl/traefik
+      && wget traefik.me/cert.pem -O cert.pem
+      && wget traefik.me/privkey.pem -O privkey.pem"
+    volumes:
+      - certs:/etc/ssl/traefik
+
+volumes:
+  certs:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
+  sonarqube_temp:
+  postgresql:
+  postgresql_data:
+
+networks:
+  lab:
+    # driver: bridge

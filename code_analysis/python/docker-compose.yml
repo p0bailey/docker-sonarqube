@@ -1,0 +1,19 @@
+version: "3.8"
+
+networks:
+  default:
+    external:
+      name: docker-sonarqube_lab
+
+services:
+  sonar-scanner:
+    image: sonarsource/sonar-scanner-cli
+    networks:
+      - default
+    environment:
+      - SONAR_HOST_URL=http://sonar:9000
+      - SONAR_TOKEN=${SONAR_TOKEN}
+    volumes:
+      - ./:/usr/src
+    command: >
+      bash -c "chmod +x code_test.sh   && ./code_test.sh"

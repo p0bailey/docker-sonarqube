@@ -1,0 +1,79 @@
+version: "3.8"
+services:
+  traefik:
+    restart: unless-stopped
+    image: traefik:v2.0.2
+    ports:
+      - "80:80"
+      - "443:443"
+    command:
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --providers.docker=true
+      - --providers.file.directory=/etc/traefik/dynamic_conf
+    networks:
+      - lab
+
+    volumes:
+      - ./certs:/tools/certs
+      - ./config/config.yml:/etc/traefik/dynamic_conf/conf.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  sonar:
+    image: ${SONAR_IMAGE}
+    depends_on:
+      - db
+    labels:
+      - traefik.http.middlewares.sonar.redirectscheme.scheme=https
+      - traefik.http.routers.sonar.entrypoints=web
+      - traefik.http.routers.sonar.rule=Host(`${SONAR_HOSTNAME}`)
+      - traefik.http.routers.sonar.middlewares=sonar@docker
+      - traefik.http.routers.sonar_https.rule=Host(`${SONAR_HOSTNAME}`)
+      - traefik.http.routers.sonar_https.tls=true
+      - traefik.http.routers.sonar_https.entrypoints=websecure
+    ports:
+      - "9000:9000"
+    networks:
+      - lab
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://db:5432/sonar
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: sonar
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+      - sonarqube_temp:/opt/sonarqube/temp
+
+  db:
+    image: postgres
+    networks:
+      - lab
+    environment:
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: sonar
+    volumes:
+      - postgresql:/var/lib/postgresql
+      - postgresql_data:/var/lib/postgresql/data
+
+  reverse-proxy-https-helper:
+    image: alpine
+    command: sh -c "cd /etc/ssl/traefik
+      && wget traefik.me/cert.pem -O cert.pem
+      && wget traefik.me/privkey.pem -O privkey.pem"
+    volumes:
+      - certs:/etc/ssl/traefik
+
+volumes:
+  certs:
+  config:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
+  sonarqube_temp:
+  postgresql:
+  postgresql_data:
+
+networks:
+  lab:
+    driver: bridge
