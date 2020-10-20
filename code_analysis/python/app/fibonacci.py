@@ -14,9 +14,6 @@ if nterms <= 0:
 else:
    print("Fibonacci sequence:")
    for i in range(nterms):
-       print fibo(i)
+       print (fibo(i))
 
 ## Comments in code are good, commented code not :) .
-
-# if __name__ == '__main__':
-#     fibonaccy.main()
