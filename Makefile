@@ -33,7 +33,7 @@ print_vars:
 	@echo
 
 up: print_vars ## Build and run
-	docker-compose up  -d 
+	docker-compose up  -d
 
 down:  ## Stop and delete everything
 	docker-compose down -v --remove-orphans  --rmi all
@@ -42,40 +42,40 @@ stop:  ## Stop and don't delete
 	docker-compose stop
 
 start: print_vars ## Start everythin
-	docker-compose start	
+	docker-compose start
 
 create_certs: delete_certs
 	cd certs && mkcert $$SONAR_HOSTNAME && mv $$SONAR_HOSTNAME.pem cert.crt \
-	&&  mv $$SONAR_HOSTNAME-key.pem cert.key 
-	
+	&&  mv $$SONAR_HOSTNAME-key.pem cert.key
+
 delete_certs:
 	cd certs && rm -f *.crt && rm -f *.key && rm -rf *.pem || true
 
 create_token:
-	 chmod +x ./config/token.sh && ./config/token.sh 
+	 chmod +x ./config/token.sh && ./config/token.sh
 
 delete_token:
 	rm -f config/token.txt || true
 
 # Needs more work
-custom_up: print_vars create_certs 
-	docker-compose -f docker-compose-custom.yml up  -d 
+custom_up: print_vars create_certs
+	docker-compose -f docker-compose-custom.yml up  -d
 
-custom_down: print_vars 
+custom_down: print_vars
 	docker-compose -f docker-compose-custom.yml down  -v --remove-orphans  --rmi all
 
 clean: delete_certs delete_token
 	docker-compose down -v  --rmi all  --remove-orphans 
-	docker-compose -f code_analysis/python/docker-compose.yml down -v  --rmi all  --remove-orphans 
+	docker-compose -f code_analysis/python/docker-compose.yml down -v  --rmi all  --remove-orphans
 
 
 code_python:
 	docker-compose -f code_analysis/python/docker-compose.yml up || true
 
 
-	
+
 # build: delete_certs  create_certs
-# 	 docker-compose up --build --no-start 
+# 	 docker-compose up --build --no-start
 
 # up: build ## Build and run the containers
 # 	docker-compose up -d
