@@ -2,6 +2,16 @@
 
 Full [SonarQube](https://www.sonarqube.org/) environment running on top of Docker and other cool stuff.
 
+<!-- MDTOC maxdepth:6 firsth1:2 numbering:0 flatten:0 bullets:1 updateOnSave:1 -->
+
+- [Description](#Description)   
+- [Dependencies](#Dependencies)   
+- [Getting Started](#Getting-Started)   
+- [SonarQube at work](#SonarQube-at-work)   
+- [Authors](#Authors)   
+
+<!-- /MDTOC -->
+
 ## Description
 
 SonarQube is an open-source platform developed by SonarSource for continuous inspection of code quality to perform automatic reviews with static analysis of code to detect bugs, code smells, and security vulnerabilities on 20+ programming languages.
@@ -11,7 +21,7 @@ The aim of Docker-Sonarqube is to provide a fully functional SonarQube in a ligh
 <!-- <img src=".img/sonar1.png" alt="Sonar" width="800"/> -->
 
 
-### Dependencies
+## Dependencies
 
 - Docker: www.docker.com
 
@@ -27,7 +37,26 @@ The aim of Docker-Sonarqube is to provide a fully functional SonarQube in a ligh
     - make code_python
     - Log into https://sonar.traefik.me (admin:admin) and check Sonar results for Python_Sample1 project.
 
+
+Add new Sonar plugins:
+
+Plugins will add extra functionality to SonarQube. To add them, open
+docker/plugins-list.txt and add your favourite one and rebuild SonarQube with `make up`.
+
+Example of docker/plugins-list.txt
+
+```
+https://github.com/sbaudoin/sonar-ansible/releases/download/v2.3.0/sonar-ansible-plugin-2.3.0.jar
+https://github.com/sbaudoin/sonar-shellcheck/releases/download/v2.3.0/sonar-shellcheck-plugin-2.3.0.jar
+https://github.com/sbaudoin/sonar-yaml/releases/download/v1.5.1/sonar-yaml-plugin-1.5.1.jar
+```
+
+
+
+
 ## SonarQube at work
+
+
 
 The main duty of SonarQube is to perform static analysis and checks on the code. So, let's put it at work.
 
@@ -77,8 +106,6 @@ else:
    print("Fibonacci sequence:")
    for i in range(nterms):
        print fibo(i)
-
-## Comments in code are good, commented code not :) .
 
 
 # if __name__ == '__main__':

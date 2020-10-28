@@ -8,7 +8,7 @@ ENV JAVA_VERSION="jdk-11.0.8+10" \
 # glibc setup
 #
 RUN set -eux; \
-    apk add --no-cache tzdata --virtual .build-deps curl binutils zstd; \
+    apk add --no-cache tzdata --virtual .build-deps curl binutils zstd wget; \
     GLIBC_VER="2.32-r0"; \
     ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download"; \
     GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-10.1.0-2-x86_64.pkg.tar.zst"; \
@@ -130,6 +130,15 @@ RUN set -ex \
 COPY --chown=sonarqube:sonarqube run.sh sonar.sh ${SONARQUBE_HOME}/bin/
 
 RUN chmod +x ${SONARQUBE_HOME}/bin/run.sh
+RUN chmod +x ${SONARQUBE_HOME}/bin/sonar.sh
+
+COPY --chown=sonarqube:sonarqube plugins-install.sh plugins-list.txt ${SONARQUBE_HOME}/extensions/plugins/
+RUN chmod +x ${SONARQUBE_HOME}/extensions/plugins/plugins-install.sh
+RUN ${SONARQUBE_HOME}/extensions/plugins/plugins-install.sh
+
+RUN cd ${SONARQUBE_HOME}/extensions/plugins/ && ls -la
+
+
 
 WORKDIR ${SONARQUBE_HOME}
 EXPOSE 9000
