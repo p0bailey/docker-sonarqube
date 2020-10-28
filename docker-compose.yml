@@ -23,7 +23,9 @@ services:
       - certs:/etc/ssl/traefik
 
   sonar:
-    image: ${SONAR_IMAGE}
+    image: docker-sonarqube_sonar
+    build: ./docker
+    image: sonarqube:latest
     depends_on:
       - db
     labels:

@@ -6,13 +6,13 @@ SHELL := '/bin/bash'
 #This is required for custom Domain.
 SONAR_HOSTNAME = sonar.127.0.0.1.xip.io
 
-SONAR_IMAGE ?= sonarqube:8.5-community
+# SONAR_IMAGE ?= sonarqube:8.5-community
 
 SONAR_TOKEN = $(shell cat token.txt)
 COMPOSE_PROJECT_NAME = docker-sonarqube
 # Export variables
 export SONAR_HOSTNAME
-export SONAR_IMAGE
+# export SONAR_IMAGE
 export SONARQUBE_URL
 export SONAR_TOKEN
 export COMPOSE_PROJECT_NAME
@@ -33,7 +33,7 @@ print_vars:
 	@echo
 
 up: print_vars ## Build and run
-	docker-compose up  -d
+	docker-compose up  -d --build 
 
 down:  ## Stop and delete everything
 	docker-compose down -v --remove-orphans  --rmi all
@@ -65,7 +65,7 @@ custom_down: print_vars
 	docker-compose -f docker-compose-custom.yml down  -v --remove-orphans  --rmi all
 
 clean: delete_certs delete_token
-	docker-compose down -v  --rmi all  --remove-orphans 
+	docker-compose down -v  --rmi all  --remove-orphans
 	docker-compose -f code_analysis/python/docker-compose.yml down -v  --rmi all  --remove-orphans
 
 
