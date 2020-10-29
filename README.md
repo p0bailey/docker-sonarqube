@@ -2,6 +2,8 @@
 
 Full [SonarQube](https://www.sonarqube.org/) environment running on top of Docker and other cool stuff.
 
+Current version: SonarQube 8.5.1 Commnunity 
+
 <!-- MDTOC maxdepth:6 firsth1:2 numbering:0 flatten:0 bullets:1 updateOnSave:1 -->
 
 - [Description](#Description)   
